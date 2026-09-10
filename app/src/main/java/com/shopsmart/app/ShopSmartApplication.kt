@@ -1,0 +1,16 @@
+package com.shopsmart.app
+
+import android.app.Application
+import com.shopsmart.app.di.authModule
+import org.koin.android.ext.koin.androidContext
+import org.koin.core.context.startKoin
+
+class ShopSmartApplication : Application() {
+    override fun onCreate() {
+        super.onCreate()
+        startKoin {
+            androidContext(this@ShopSmartApplication)
+            modules(authModule)
+        }
+    }
+}

@@ -1,0 +1,20 @@
+package com.shopsmart.app.di
+
+import com.shopsmart.app.core.datastore.DataStoreManager
+import com.shopsmart.app.features.auth.data.repository.AuthRepositoryImpl
+import com.shopsmart.app.features.auth.domain.repository.AuthRepository
+import com.shopsmart.app.features.auth.domain.usecase.LoginUseCase
+import com.shopsmart.app.features.auth.domain.usecase.RegisterUseCase
+import com.shopsmart.app.features.auth.presentation.viewmodel.AuthViewModel
+import org.koin.androidx.viewmodel.dsl.viewModel
+import org.koin.dsl.module
+
+val authModule = module {
+  single { DataStoreManager(get()) }
+  single<AuthRepository> { AuthRepositoryImpl(get()) }
+
+  factory { LoginUseCase(get()) }
+  factory { RegisterUseCase(get()) }
+
+  viewModel { AuthViewModel(get(), get()) }
+}
