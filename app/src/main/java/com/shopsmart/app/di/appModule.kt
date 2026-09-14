@@ -5,6 +5,7 @@ import com.shopsmart.app.features.auth.data.repository.AuthRepositoryImpl
 import com.shopsmart.app.features.auth.domain.repository.AuthRepository
 import com.shopsmart.app.features.auth.domain.usecase.LoginUseCase
 import com.shopsmart.app.features.auth.domain.usecase.RegisterUseCase
+import com.shopsmart.app.features.auth.domain.usecase.SocialLoginUseCase
 import com.shopsmart.app.features.auth.presentation.viewmodel.AuthViewModel
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
@@ -15,6 +16,7 @@ val authModule = module {
 
   factory { LoginUseCase(get()) }
   factory { RegisterUseCase(get()) }
+  factory { SocialLoginUseCase(get()) }
 
-  viewModel { AuthViewModel(get(), get()) }
+  viewModel { AuthViewModel(get(), get(),get()) }
 }

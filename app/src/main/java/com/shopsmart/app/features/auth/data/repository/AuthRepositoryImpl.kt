@@ -7,6 +7,8 @@ import com.shopsmart.app.core.util.AppResult
 import com.shopsmart.app.features.auth.data.mappers.AuthResultMapper
 import com.shopsmart.app.features.auth.data.remote.model.LoginRequestDto
 import com.shopsmart.app.features.auth.data.remote.model.RegisterRequestDto
+import com.shopsmart.app.features.auth.data.remote.model.SocialLoginRequestDto
+import com.shopsmart.app.features.auth.domain.model.AuthProvider
 import com.shopsmart.app.features.auth.domain.model.AuthResult
 import com.shopsmart.app.features.auth.domain.model.User
 import com.shopsmart.app.features.auth.domain.repository.AuthRepository
@@ -102,5 +104,34 @@ class AuthRepositoryImpl(private val dataStore: DataStoreManager) : AuthReposito
             AppResult.Failure(e)
         }
     }
+
+    override suspend fun socialLogin(
+        provider: AuthProvider,
+        accessToken: String
+    ): AppResult<AuthResult> = runAuthCall {
+        val response = RetrofitClient.apiService.socialLogin(
+            SocialLoginRequestDto(provider.value, accessToken)
+        )
+        if (!response.isSuccessful) {
+            val body = response.errorBody()?.string()
+            return@runAuthCall AppResult.Failure(
+                Exception(body ?: "${provider.value} sign-in failed")
+            )
+        }
+        val base = response.body()
+            ?: return@runAuthCall AppResult.Failure(Exception("Empty response"))
+        val authResult = AuthResultMapper.mapToDomain(base)
+        authResult.token?.let { token ->
+            authResult.user?.let { user ->
+                dataStore.saveAuthData(token, user.id, user.email, user.fullName)
+                RetrofitClient.setToken(token)
+            }
+        }
+        AppResult.Success(authResult)
+    }
+
+    // Private helper – keep at the bottom of AuthRepositoryImpl
+    private inline fun <T> runAuthCall(block: () -> AppResult<T>): AppResult<T> =
+        try { block() } catch (e: Exception) { AppResult.Failure(e) }
 
 }

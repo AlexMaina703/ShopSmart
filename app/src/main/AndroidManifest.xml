@@ -3,6 +3,13 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <!-- Required on Android 11+ so the SDK can detect the installed Facebook app -->
+    <queries>
+        <package android:name="com.facebook.katana" />
+        <package android:name="com.facebook.orca" />
+    </queries>
 
     <application
         android:name=".ShopSmartApplication"
@@ -11,10 +18,44 @@
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@drawable/outline_360_24"
         android:label="@string/app_name"
+        android:networkSecurityConfig="@xml/network_security_config"
         android:roundIcon="@drawable/outline_shop_24"
         android:supportsRtl="true"
         android:theme="@style/Theme.ShopSmart"
         tools:targetApi="31">
+
+        <!-- ==================== FACEBOOK SDK ==================== -->
+
+        <!-- 1. App ID — required, replaces the old fb_app_id string -->
+        <meta-data
+            android:name="com.facebook.sdk.ApplicationId"
+            android:value="@string/facebook_app_id" />
+
+        <!-- 2. Client token — required since SDK v13 for security -->
+        <meta-data
+            android:name="com.facebook.sdk.ClientToken"
+            android:value="@string/facebook_client_token" />
+
+        <!-- 3. Chrome Custom Tabs support (better UX than WebView) -->
+        <meta-data
+            android:name="com.facebook.sdk.AutoLogAppEventsEnabled"
+            android:value="true" />
+
+        <!-- 4. Facebook login activity — MUST be declared -->
+        <activity
+            android:name="com.facebook.FacebookActivity"
+            android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
+            android:label="@string/app_name" />
+
+        <!-- 5. Content provider used by the SDK for internal bookkeeping -->
+        <provider
+            android:name="com.facebook.FacebookContentProvider"
+            android:authorities="com.facebook.app.FacebookContentProvider{APP_ID}"
+            android:exported="true"
+            tools:ignore="ExportedContentProvider" />
+
+        <!-- ==================== APP ENTRIES ==================== -->
+
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -24,6 +65,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
     </application>
 
 </manifest>

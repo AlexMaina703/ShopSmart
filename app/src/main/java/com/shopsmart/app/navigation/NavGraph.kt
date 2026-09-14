@@ -4,8 +4,8 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.shopsmart.app.features.auth.presentation.screens.RegisterScreen
 import com.shopsmart.app.features.auth.presentation.viewmodel.authScreens.LoginScreen
-import com.shopsmart.app.features.auth.presentation.viewmodel.authScreens.RegisterScreen
 import com.shopsmart.app.features.home.presentation.HomeScreen
 
 @Composable

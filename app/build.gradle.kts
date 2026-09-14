@@ -78,6 +78,13 @@ dependencies {
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
     implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
 
+
+    // Facebook Login SDK
+    implementation("com.facebook.android:facebook-login:18.2.3")
+
+    // Google Play Services Auth (for Google Sign-In)
+    implementation("com.google.android.gms:play-services-auth:21.6.0")
+
     // DataStore
     implementation("androidx.datastore:datastore-preferences:1.0.0")
 

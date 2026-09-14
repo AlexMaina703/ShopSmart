@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">ShopSmart</string>
     <string name="login">Login</string>
@@ -11,4 +12,8 @@
     <string name="checkout">Checkout</string>
     <string name="total">Total</string>
     <string name="logout">Logout</string>
+
+    <!-- Facebook Login -->
+    <string name="facebook_app_id" translatable="false">1234567890123456</string>
+    <string name="facebook_client_token" translatable="false">abc123def456abc123def456abc123de</string>
 </resources>

@@ -2,18 +2,47 @@ package com.shopsmart.app.core.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-val Purple80 = Color(0xFFD0BCFF)
-val PurpleGrey80 = Color(0xFFCCC2DC)
-val Pink80 = Color(0xFFEFB8C8)
+// ============================================================
+//  LIGHT PALETTE  (ShopEasy brand)
+// ============================================================
+val Primary       = Color(0xFFFF6B35)   // brand orange
+val PrimaryDark   = Color(0xFFE55A2B)   // darker orange (pressed state / tertiary)
+val Secondary     = Color(0xFFFF8C42)
 
-val Purple40 = Color(0xFF6650a4)
-val PurpleGrey40 = Color(0xFF625b71)
-val Pink40 = Color(0xFF7D5260)
+val Background    = Color(0xFFF8F8F8)   // page background
+val Surface       = Color(0xFFFFFFFF)   // cards, top bars, sheets
+val DividerColor  = Color(0xFFEEEEEE)
 
-val PrimaryColor = Color(0xFF6200EE)
-val SecondaryColor = Color(0xFF03DAC5)
-val BackgroundColor = Color(0xFFF5F5F5)
-val SurfaceColor = Color(0xFFFFFFFF)
-val ErrorColor = Color(0xFFB00020)
-val OnPrimaryColor = Color(0xFFFFFFFF)
-val OnSecondaryColor = Color(0xFF000000)
+val TextPrimary   = Color(0xFF1A1A1A)   // body text on light
+val TextSecondary = Color(0xFF666666)
+val TextHint      = Color(0xFF999999)
+
+val Success       = Color(0xFF4CAF50)
+val Error         = Color(0xFFE53935)
+val Warning       = Color(0xFFFF9800)
+
+
+// ============================================================
+//  DARK PALETTE
+// ============================================================
+// Slightly brighter orange so it pops on dark backgrounds.
+val PrimaryDarkTheme     = Color(0xFFFF8A5C)
+val PrimaryDarkDark       = Color(0xFFE56B3A)
+val SecondaryDarkTheme    = Color(0xFFFFA36B)
+
+// Near-black surfaces — NOT pure #000000 (that's harsh on OLED).
+val BackgroundDark        = Color(0xFF121212)
+val SurfaceDark           = Color(0xFF1E1E1E)
+val DividerDark           = Color(0xFF2A2A2A)
+
+// Text on dark
+val TextPrimaryDark       = Color(0xFFEDEDED)
+val TextSecondaryDark     = Color(0xFFAAAAAA)
+val TextHintDark          = Color(0xFF777777)
+
+// A slightly lighter red so error text reads on dark
+val ErrorDark             = Color(0xFFEF5350)
+
+// White text/icons that sit on the orange button
+val OnPrimaryLight        = Color(0xFFFFFFFF)
+val OnPrimaryDark         = Color(0xFF1A1A1A)   // dark text on the brighter orange
