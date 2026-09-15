@@ -64,4 +64,8 @@ class AuthViewModel(
         if (_loginState.value is AuthState.Error) _loginState.value = AuthState.Idle
         if (_registerState.value is AuthState.Error) _registerState.value = AuthState.Idle
     }
+
+    fun showError(message: String) {
+        _loginState.value = AuthState.Error(message)
+    }
 }

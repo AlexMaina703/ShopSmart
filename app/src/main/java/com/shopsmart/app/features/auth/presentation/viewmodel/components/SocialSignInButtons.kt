@@ -34,7 +34,7 @@ import com.shopsmart.app.R
 import com.shopsmart.app.features.auth.domain.model.AuthProvider
 
 private const val GOOGLE_WEB_CLIENT_ID =
-    "404852968671-da30govd04v6080uf1us5u5jrn9sv59q.apps.googleusercontent.com"
+    "404852968671-hfimu4ht8qtbbkijl656r5hn2l0c0qev.apps.googleusercontent.com"
 
 @Composable
 fun SocialSignInButtons(
@@ -52,20 +52,27 @@ fun SocialSignInButtons(
     val googleLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
     ) { result ->
+        // 1. result.data can be null when the user cancels.
+        if (result.data == null) {
+            onError("Google sign-in cancelled (no data)")
+            return@rememberLauncherForActivityResult
+        }
+
         val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
         try {
             val account = task.getResult(ApiException::class.java)
             val idToken = account.idToken
+            android.util.Log.d("SocialSignIn", "Google ok, idToken=${idToken != null}")
             if (idToken.isNullOrEmpty()) {
-                onError("Google did not return an idToken")
+                onError("Google did not return an idToken (check Web Client ID)")
             } else {
                 onSignInWith(AuthProvider.GOOGLE, idToken)
             }
         } catch (e: ApiException) {
-            onError("Google sign-in failed: ${e.statusCode}")
+            android.util.Log.e("SocialSignIn", "Google ApiException code=${e.statusCode}", e)
+            onError("Google sign-in failed: code ${e.statusCode} — ${e.message}")
         }
     }
-
     // ------------------------------------------------------------
     //  FACEBOOK
     // ------------------------------------------------------------
@@ -103,11 +110,12 @@ fun SocialSignInButtons(
         // ---------- GOOGLE ----------
         OutlinedButton(
             onClick = {
+                val act = activity ?: return@OutlinedButton
                 val opts = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                     .requestIdToken(GOOGLE_WEB_CLIENT_ID)
                     .requestEmail()
                     .build()
-                val client = GoogleSignIn.getClient(context, opts)
+                val client = GoogleSignIn.getClient(act, opts)
                 googleLauncher.launch(client.signInIntent)
             },
             modifier = Modifier.fillMaxWidth().height(50.dp),

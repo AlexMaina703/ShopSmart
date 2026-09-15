@@ -129,13 +129,8 @@ fun LoginScreen(
             // ---------- SOCIAL ----------
             SocialSignInButtons(
                 enabled = !isLoading,
-                onSignInWith = { provider, token ->
-                    viewModel.socialLogin(provider, token)
-                },
-                onError = { message ->
-                    // simplest way to surface it: reuse the viewModel's error slot
-                    // (add a public `showError(msg)` method to the VM if you want)
-                },
+                onSignInWith = { provider, token -> viewModel.socialLogin(provider, token) },
+                onError = { message -> viewModel.showError(message) },
             )
 
             Spacer(Modifier.height(24.dp))

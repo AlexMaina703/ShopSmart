@@ -110,7 +110,10 @@ class AuthRepositoryImpl(private val dataStore: DataStoreManager) : AuthReposito
         accessToken: String
     ): AppResult<AuthResult> = runAuthCall {
         val response = RetrofitClient.apiService.socialLogin(
-            SocialLoginRequestDto(provider.value, accessToken)
+            SocialLoginRequestDto(
+                provider = provider.value,
+                token = accessToken,          // ← renamed
+            )
         )
         if (!response.isSuccessful) {
             val body = response.errorBody()?.string()
