@@ -19,4 +19,9 @@ interface AuthRepository {
     ): AppResult<AuthResult>
 
 
+    suspend fun hasCompletedOnboarding(): AppResult<Boolean>
+    suspend fun setOnboardingComplete(): AppResult<Unit>
+
+    suspend fun forgotPassword(email: String): AppResult<Unit>
+    suspend fun resetPassword(token: String, newPassword: String): AppResult<Unit>
 }

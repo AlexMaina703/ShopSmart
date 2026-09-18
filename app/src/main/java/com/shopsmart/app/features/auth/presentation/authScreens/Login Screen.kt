@@ -1,5 +1,6 @@
-package com.shopsmart.app.features.auth.presentation.viewmodel.authScreens
+package com.shopsmart.app.features.auth.presentation.authScreens
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
@@ -14,10 +15,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import com.shopsmart.app.features.auth.domain.model.AuthProvider
 import com.shopsmart.app.features.auth.presentation.components.SocialSignInButtons
 import com.shopsmart.app.features.auth.presentation.viewmodel.AuthViewModel
-import com.shopsmart.app.features.auth.presentation.viewmodel.state.AuthState
+import com.shopsmart.app.features.auth.presentation.state.AuthState
 import com.shopsmart.app.navigation.NavRoutes
 import org.koin.androidx.compose.koinViewModel
 
@@ -82,6 +82,24 @@ fun LoginScreen(
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 modifier = Modifier.fillMaxWidth(),
             )
+
+            // ---------- FORGOT PASSWORD ----------
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp),
+                horizontalArrangement = Arrangement.End,
+            ) {
+                Text(
+                    text = "Forgot Password?",
+                    color = MaterialTheme.colorScheme.primary,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium,
+                    modifier = Modifier.clickable(enabled = !isLoading) {
+                        navController.navigate(NavRoutes.FORGOT_PASSWORD)
+                    },
+                )
+            }
 
             if (errorMessage != null) {
                 Spacer(Modifier.height(12.dp))

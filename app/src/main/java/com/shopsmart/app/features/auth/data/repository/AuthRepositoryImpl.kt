@@ -5,8 +5,10 @@ import com.shopsmart.app.core.network.RetrofitClient
 import com.shopsmart.app.core.network.UnauthorizedException
 import com.shopsmart.app.core.util.AppResult
 import com.shopsmart.app.features.auth.data.mappers.AuthResultMapper
+import com.shopsmart.app.features.auth.data.remote.model.ForgotPasswordRequestDto
 import com.shopsmart.app.features.auth.data.remote.model.LoginRequestDto
 import com.shopsmart.app.features.auth.data.remote.model.RegisterRequestDto
+import com.shopsmart.app.features.auth.data.remote.model.ResetPasswordRequestDto
 import com.shopsmart.app.features.auth.data.remote.model.SocialLoginRequestDto
 import com.shopsmart.app.features.auth.domain.model.AuthProvider
 import com.shopsmart.app.features.auth.domain.model.AuthResult
@@ -60,6 +62,41 @@ class AuthRepositoryImpl(private val dataStore: DataStoreManager) : AuthReposito
             AppResult.Failure(e)
         }
     }
+
+    override suspend fun forgotPassword(email: String): AppResult<Unit> =
+        runAuthCall {
+            val response = RetrofitClient.apiService.forgotPassword(
+                ForgotPasswordRequestDto(email)
+            )
+            if (response.isSuccessful) {
+                AppResult.Success(Unit)
+            } else {
+                val body = response.errorBody()?.string()
+                AppResult.Failure(Exception(body ?: "Failed to send reset link"))
+            }
+        }
+
+    override suspend fun resetPassword(token: String, newPassword: String): AppResult<Unit> =
+        runAuthCall {
+            val response = RetrofitClient.apiService.resetPassword(
+                ResetPasswordRequestDto(token, newPassword)
+            )
+            if (response.isSuccessful) {
+                AppResult.Success(Unit)
+            } else {
+                val body = response.errorBody()?.string()
+                AppResult.Failure(Exception(body ?: "Failed to reset password"))
+            }
+        }
+
+    override suspend fun hasCompletedOnboarding(): AppResult<Boolean> =
+        runAuthCall { AppResult.Success(dataStore.isOnboardingComplete()) }
+
+    override suspend fun setOnboardingComplete(): AppResult<Unit> =
+        runAuthCall {
+            dataStore.setOnboardingCompleted()
+            AppResult.Success(Unit)
+        }
     override suspend fun validateToken(): AppResult<User> {
         return try {
             val token = dataStore.getToken()

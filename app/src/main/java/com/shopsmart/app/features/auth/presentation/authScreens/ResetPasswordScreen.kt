@@ -1,10 +1,6 @@
-package com.shopsmart.app.features.auth.presentation.screens
+package com.shopsmart.app.features.auth.presentation.authScreens
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Visibility
@@ -15,65 +11,58 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import com.shopsmart.app.core.ui.theme.Primary
-import com.shopsmart.app.core.ui.theme.Surface
+import com.shopsmart.app.features.auth.presentation.state.AuthState
 import com.shopsmart.app.features.auth.presentation.viewmodel.AuthViewModel
-import com.shopsmart.app.features.auth.presentation.viewmodel.state.AuthState
 import com.shopsmart.app.navigation.NavRoutes
 import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RegisterScreen(
+fun ResetPasswordScreen(
     navController: NavController,
     authViewModel: AuthViewModel = koinViewModel()
 ) {
-    var fullName by rememberSaveable { mutableStateOf("") }
-    var email by rememberSaveable { mutableStateOf("") }
-    var phone by rememberSaveable { mutableStateOf("") }
-    var password by rememberSaveable { mutableStateOf("") }
+    var token by rememberSaveable { mutableStateOf("") }
+    var newPassword by rememberSaveable { mutableStateOf("") }
     var confirmPassword by rememberSaveable { mutableStateOf("") }
     var passwordVisible by rememberSaveable { mutableStateOf(false) }
-    var termsAccepted by rememberSaveable { mutableStateOf(false) }
 
-    val registerState by authViewModel.registerState.collectAsStateWithLifecycle()
+    val state by authViewModel.resetState.collectAsStateWithLifecycle()
+    val snackbarHostState = remember { SnackbarHostState() }
 
-    val isLoading = registerState is AuthState.Loading
-    val errorMessage = (registerState as? AuthState.Error)?.message
+    val isLoading = state is AuthState.Loading
+    val errorMessage = (state as? AuthState.Error)?.message
 
-    val passwordsMatch = password == confirmPassword
-    val isFormValid = fullName.isNotBlank() &&
-            email.isNotBlank() &&
-            phone.isNotBlank() &&
-            password.length >= 6 &&
-            passwordsMatch &&
-            termsAccepted
+    val passwordsMatch = newPassword == confirmPassword
+    val isFormValid = token.isNotBlank() &&
+            newPassword.length >= 6 &&
+            passwordsMatch
 
-    // Navigate on success & clear the error when leaving the screen
-    LaunchedEffect(registerState) {
-        if (registerState is AuthState.Success) {
-            authViewModel.clearErrors()
-            navController.navigate(NavRoutes.HOME) {
-                popUpTo(NavRoutes.REGISTER) { inclusive = true }
+    LaunchedEffect(state) {
+        if (state is AuthState.Success) {
+            snackbarHostState.showSnackbar("Password reset. Please login.")
+            navController.navigate(NavRoutes.LOGIN) {
+                popUpTo(0) { inclusive = true }
             }
+            authViewModel.clearResetState()
         }
     }
 
     DisposableEffect(Unit) {
-        onDispose { authViewModel.clearErrors() }
+        onDispose { authViewModel.clearResetState() }
     }
 
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
-                title = { Text("Register") },
+                title = { Text("Reset Password") },
                 navigationIcon = {
                     IconButton(
                         onClick = { navController.popBackStack() },
@@ -89,54 +78,32 @@ fun RegisterScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .padding(horizontal = 24.dp)
-                .verticalScroll(rememberScrollState()),
+                .padding(horizontal = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("Create Account", fontSize = 28.sp, fontWeight = FontWeight.Bold)
+            Spacer(Modifier.height(40.dp))
+            Text("Create New Password", fontSize = 24.sp, fontWeight = FontWeight.Bold)
             Text(
-                text = "Let's get you started",
+                text = "Enter the token from your email and your new password.",
                 fontSize = 14.sp,
                 color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
-                modifier = Modifier.padding(bottom = 32.dp)
+                modifier = Modifier.padding(top = 8.dp, bottom = 32.dp)
             )
 
             OutlinedTextField(
-                value = fullName,
-                onValueChange = { fullName = it },
-                label = { Text("Full Name") },
+                value = token,
+                onValueChange = { token = it },
+                label = { Text("Reset Token") },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
                 enabled = !isLoading
             )
-            Spacer(Modifier.height(16.dp))
-
-            OutlinedTextField(
-                value = email,
-                onValueChange = { email = it },
-                label = { Text("Email") },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true,
-                enabled = !isLoading,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
-            )
             Spacer(Modifier.height(12.dp))
 
             OutlinedTextField(
-                value = phone,
-                onValueChange = { phone = it },
-                label = { Text("Phone") },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true,
-                enabled = !isLoading,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone)
-            )
-            Spacer(Modifier.height(12.dp))
-
-            OutlinedTextField(
-                value = password,
-                onValueChange = { password = it },
-                label = { Text("Password") },
+                value = newPassword,
+                onValueChange = { newPassword = it },
+                label = { Text("New Password") },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
                 enabled = !isLoading,
@@ -169,24 +136,13 @@ fun RegisterScreen(
                 visualTransformation = if (passwordVisible) VisualTransformation.None
                 else PasswordVisualTransformation()
             )
-            Spacer(Modifier.height(12.dp))
 
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Checkbox(
-                    checked = termsAccepted,
-                    onCheckedChange = { termsAccepted = it },
-                    enabled = !isLoading
-                )
-                Text("I agree to the Terms & conditions")
-            }
-
-            // ---- Error banner ----
             if (errorMessage != null) {
-                Spacer(Modifier.height(16.dp))
+                Spacer(Modifier.height(12.dp))
                 Text(
                     text = errorMessage,
                     color = MaterialTheme.colorScheme.error,
-                    style = MaterialTheme.typography.bodyMedium,
+                    fontSize = 14.sp,
                     modifier = Modifier.fillMaxWidth()
                 )
             }
@@ -194,37 +150,24 @@ fun RegisterScreen(
             Spacer(Modifier.height(24.dp))
 
             Button(
-                onClick = { authViewModel.register(fullName, email, password, phone) },
+                onClick = { authViewModel.resetPassword(token.trim(), newPassword) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(50.dp),
-                enabled = isFormValid && !isLoading,
-                colors = ButtonDefaults.buttonColors(containerColor = Primary),
-                shape = MaterialTheme.shapes.medium
+                shape = MaterialTheme.shapes.medium,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary
+                ),
+                enabled = isFormValid && !isLoading
             ) {
                 if (isLoading) {
                     CircularProgressIndicator(
-                        color = Surface,
+                        color = MaterialTheme.colorScheme.surface,
                         modifier = Modifier.size(24.dp)
                     )
                 } else {
-                    Text("Sign Up", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+                    Text("Reset Password", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
                 }
-            }
-
-            Spacer(Modifier.height(24.dp))
-
-            Row {
-                Text("Already have an account? ", fontSize = 14.sp)
-                Text(
-                    text = "Login",
-                    color = Primary,
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    modifier = Modifier.clickable(enabled = !isLoading) {
-                        navController.popBackStack()
-                    }
-                )
             }
         }
     }
