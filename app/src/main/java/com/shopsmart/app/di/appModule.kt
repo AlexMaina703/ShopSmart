@@ -10,6 +10,17 @@ import com.shopsmart.app.features.auth.domain.usecase.ResetPasswordUseCase
 import com.shopsmart.app.features.auth.domain.usecase.SocialLoginUseCase
 import com.shopsmart.app.features.auth.domain.usecase.ValidateTokenUseCase
 import com.shopsmart.app.features.auth.presentation.viewmodel.AuthViewModel
+import com.shopsmart.app.features.home.data.repository.HomeRepositoryImpl
+import com.shopsmart.app.features.home.data.repository.ProductRepositoryImpl
+import com.shopsmart.app.features.home.domain.repository.HomeRepository
+import com.shopsmart.app.features.home.domain.repository.ProductRepository
+import com.shopsmart.app.features.home.domain.usecase.GetBannersUseCase
+import com.shopsmart.app.features.home.domain.usecase.GetCategoriesUseCase
+import com.shopsmart.app.features.home.domain.usecase.GetFeaturedProductsUseCase
+import com.shopsmart.app.features.home.domain.usecase.GetProductByIdUseCase
+import com.shopsmart.app.features.home.domain.usecase.GetRelatedProductsUseCase
+import com.shopsmart.app.features.home.presentation.viewmodels.HomeViewModel
+import com.shopsmart.app.features.home.presentation.viewmodels.ProductDetailViewModel
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 
@@ -34,6 +45,37 @@ val authModule = module {
       onboardingUseCase = get(),
       forgotPasswordUseCase = get(),
       resetPasswordUseCase = get()
+    )
+  }
+}
+
+val homeModule = module {
+  single<HomeRepository> { HomeRepositoryImpl() }
+
+  factory { GetCategoriesUseCase(get()) }
+  factory { GetFeaturedProductsUseCase(get()) }
+  factory { GetBannersUseCase(get()) }
+
+  viewModel {
+    HomeViewModel(
+      getCategoriesUseCase = get(),
+      getFeaturedProductsUseCase = get(),
+      getBannersUseCase = get(),
+    )
+  }
+}
+
+
+val productModule = module {
+  single<ProductRepository> { ProductRepositoryImpl() }
+
+  factory { GetProductByIdUseCase(get()) }
+  factory { GetRelatedProductsUseCase(get()) }
+
+  viewModel {
+    ProductDetailViewModel(
+      getProductByIdUseCase = get(),
+      getRelatedProductsUseCase = get(),
     )
   }
 }

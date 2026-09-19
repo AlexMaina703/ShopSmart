@@ -1,4 +1,4 @@
-package com.shopsmart.app.core.ui.components
+package com.shopsmart.app.core.ui.theme
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize

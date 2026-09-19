@@ -9,4 +9,8 @@ object NavRoutes {
     const val RESET_PASSWORD = "reset_password"
 
     const val HOME = "home"
+
+    const val PRODUCT_DETAIL = "product_detail/{productId}"
+
+    fun productDetail(productId: String) = "product_detail/$productId"
 }

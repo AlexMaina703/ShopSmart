@@ -2,6 +2,8 @@ package com.shopsmart.app
 
 import android.app.Application
 import com.shopsmart.app.di.authModule
+import com.shopsmart.app.di.homeModule
+import com.shopsmart.app.di.productModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
 
@@ -10,7 +12,7 @@ class ShopSmartApplication : Application() {
         super.onCreate()
         startKoin {
             androidContext(this@ShopSmartApplication)
-            modules(authModule)
+            modules(authModule, homeModule, productModule)
         }
     }
 }
