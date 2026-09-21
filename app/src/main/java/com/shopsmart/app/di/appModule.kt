@@ -10,6 +10,7 @@ import com.shopsmart.app.features.auth.domain.usecase.ResetPasswordUseCase
 import com.shopsmart.app.features.auth.domain.usecase.SocialLoginUseCase
 import com.shopsmart.app.features.auth.domain.usecase.ValidateTokenUseCase
 import com.shopsmart.app.features.auth.presentation.viewmodel.AuthViewModel
+import com.shopsmart.app.features.cart.data.repository.CartRepositoryImpl
 import com.shopsmart.app.features.home.data.repository.HomeRepositoryImpl
 import com.shopsmart.app.features.home.data.repository.ProductRepositoryImpl
 import com.shopsmart.app.features.home.domain.repository.HomeRepository
@@ -18,9 +19,27 @@ import com.shopsmart.app.features.home.domain.usecase.GetBannersUseCase
 import com.shopsmart.app.features.home.domain.usecase.GetCategoriesUseCase
 import com.shopsmart.app.features.home.domain.usecase.GetFeaturedProductsUseCase
 import com.shopsmart.app.features.home.domain.usecase.GetProductByIdUseCase
+import com.shopsmart.app.features.home.domain.usecase.GetProductsUseCase
 import com.shopsmart.app.features.home.domain.usecase.GetRelatedProductsUseCase
+import com.shopsmart.app.features.home.presentation.viewmodels.CategoriesViewModel
 import com.shopsmart.app.features.home.presentation.viewmodels.HomeViewModel
 import com.shopsmart.app.features.home.presentation.viewmodels.ProductDetailViewModel
+import com.shopsmart.app.features.home.presentation.viewmodels.ProductListViewModel
+import com.shopsmart.app.features.cart.domain.repository.CartRepository
+import com.shopsmart.app.features.order.data.repository.OrderRepositoryImpl
+import com.shopsmart.app.features.order.domain.repository.OrderRepository
+import com.shopsmart.app.features.order.domain.usecase.*
+import com.shopsmart.app.features.order.presentation.viewmodels.CheckoutViewModel
+import com.shopsmart.app.features.order.presentation.viewmodels.OrdersViewModel
+import com.shopsmart.app.features.cart.domain.usecase.*
+import com.shopsmart.app.features.cart.presentation.viewmodels.CartViewModel
+import com.shopsmart.app.features.order.presentation.viewmodels.AddAddressViewModel
+import com.shopsmart.app.features.order.presentation.viewmodels.AddPaymentMethodViewModel
+import com.shopsmart.app.features.order.presentation.viewmodels.OrderDetailViewModel
+import com.shopsmart.app.features.order.presentation.viewmodels.TrackOrderViewModel
+import org.koin.androidx.viewmodel.dsl.viewModel
+
+import org.koin.dsl.module
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 
@@ -74,8 +93,66 @@ val productModule = module {
 
   viewModel {
     ProductDetailViewModel(
-      getProductByIdUseCase = get(),
-      getRelatedProductsUseCase = get(),
+        getProductByIdUseCase = get(),
+        getRelatedProductsUseCase = get(),
+        addToCartUseCase = get(),
     )
   }
+}
+
+val categoriesModule = module {
+  factory { GetProductsUseCase(get()) }
+
+  viewModel { CategoriesViewModel(get(), get()) }
+  viewModel { ProductListViewModel(get()) }
+}
+
+
+val cartModule = module {
+  single<CartRepository> { CartRepositoryImpl() }
+
+  factory { GetCartUseCase(get()) }
+  factory { AddToCartUseCase(get()) }
+  factory { UpdateCartItemUseCase(get()) }
+  factory { RemoveCartItemUseCase(get()) }
+  factory { ClearCartUseCase(get()) }
+
+  viewModel {
+    CartViewModel(
+      getCartUseCase = get(),
+      updateCartItemUseCase = get(),
+      removeCartItemUseCase = get(),
+      clearCartUseCase = get(),
+    )
+  }
+}
+
+
+val orderModule = module {
+  single<OrderRepository> { OrderRepositoryImpl() }
+
+  factory { GetAddressesUseCase(get()) }
+  factory { GetPaymentMethodsUseCase(get()) }
+  factory { PlaceOrderUseCase(get()) }
+  factory { GetOrdersUseCase(get()) }
+  factory { GetOrderByIdUseCase(get()) }
+  factory { AddAddressUseCase(get()) }
+  factory { DeleteAddressUseCase(get()) }
+  factory { AddPaymentMethodUseCase(get()) }
+  factory { DeletePaymentMethodUseCase(get()) }
+  factory { GetOrderTrackingUseCase(get()) }
+
+  viewModel {
+    CheckoutViewModel(
+      getAddressesUseCase = get(),
+      getPaymentMethodsUseCase = get(),
+      placeOrderUseCase = get(),
+      clearCartUseCase = get(),
+    )
+  }
+  viewModel { OrdersViewModel(get()) }
+  viewModel { OrderDetailViewModel(get()) }
+  viewModel { AddAddressViewModel(get()) }
+  viewModel { AddPaymentMethodViewModel(get()) }
+  viewModel { TrackOrderViewModel(get()) }
 }

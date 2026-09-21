@@ -42,10 +42,10 @@ fun HomeScreen(
                     currentBottomRoute = item.route
                     when (item.route) {
                         "home" -> Unit
-                        "categories" -> { /* navController.navigate(...) */ }
-                        "cart" -> { /* navController.navigate(...) */ }
-                        "orders" -> { /* navController.navigate(...) */ }
-                        "profile" -> { /* navController.navigate(...) */ }
+                        "categories" -> navController.navigate(NavRoutes.CATEGORIES)
+                        "cart" -> navController.navigate(NavRoutes.CART)
+                        "orders" -> navController.navigate(NavRoutes.ORDERS)
+                        "profile" -> { /* TODO */ }
                     }
                 },
             )

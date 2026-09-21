@@ -3,6 +3,7 @@ package com.shopsmart.app.features.home.presentation.viewmodels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.shopsmart.app.core.util.AppResult
+import com.shopsmart.app.features.cart.domain.usecase.AddToCartUseCase
 import com.shopsmart.app.features.home.domain.usecase.GetProductByIdUseCase
 import com.shopsmart.app.features.home.domain.usecase.GetRelatedProductsUseCase
 import com.shopsmart.app.features.home.presentation.state.ProductDetailUiState
@@ -15,6 +16,7 @@ import kotlinx.coroutines.launch
 class ProductDetailViewModel(
     private val getProductByIdUseCase: GetProductByIdUseCase,
     private val getRelatedProductsUseCase: GetRelatedProductsUseCase,
+    private val addToCartUseCase: AddToCartUseCase,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ProductDetailUiState())
@@ -77,16 +79,23 @@ class ProductDetailViewModel(
         val p = _uiState.value.product ?: return
         viewModelScope.launch {
             _uiState.update { it.copy(isAddingToCart = true) }
-
-            // TODO: wire to CartRepository — for now, simulate
-            kotlinx.coroutines.delay(400)
-
-            _uiState.update {
-                it.copy(
-                    isAddingToCart = false,
-                    toastMessage = "${p.name} added to cart",
-                    cartItemCount = it.cartItemCount + it.quantity,
-                )
+            when (val r = addToCartUseCase(
+                productId = p.id,
+                quantity = _uiState.value.quantity,
+            )) {
+                is AppResult.Success -> _uiState.update {
+                    it.copy(
+                        isAddingToCart = false,
+                        toastMessage = "${p.name} added to cart",
+                        cartItemCount = r.data.itemCount,
+                    )
+                }
+                is AppResult.Failure -> _uiState.update {
+                    it.copy(
+                        isAddingToCart = false,
+                        toastMessage = r.exception.message ?: "Failed to add to cart",
+                    )
+                }
             }
         }
     }

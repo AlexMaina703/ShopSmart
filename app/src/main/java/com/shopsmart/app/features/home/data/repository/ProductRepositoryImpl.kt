@@ -3,6 +3,7 @@ package com.shopsmart.app.features.home.data.repository
 import com.shopsmart.app.core.network.RetrofitClient
 import com.shopsmart.app.core.util.AppResult
 import com.shopsmart.app.features.home.data.mappers.HomeMappers.toDomain
+import com.shopsmart.app.features.home.domain.model.PagedProducts
 import com.shopsmart.app.features.home.domain.model.Product
 import com.shopsmart.app.features.home.domain.repository.ProductRepository
 
@@ -35,6 +36,43 @@ class ProductRepositoryImpl : ProductRepository {
             } else {
                 AppResult.Failure(
                     Exception(response.errorBody()?.string() ?: "Failed to load related products")
+                )
+            }
+        } catch (e: Exception) {
+            AppResult.Failure(e)
+        }
+    }
+
+    override suspend fun getProducts(
+        categoryId: String?,
+        search: String?,
+        sortBy: String?,
+        page: Int,
+        pageSize: Int,
+    ): AppResult<PagedProducts> {
+        return try {
+            val response = RetrofitClient.apiService.getProducts(
+                categoryId = categoryId,
+                search = search,
+                sortBy = sortBy,
+                page = page,
+                pageSize = pageSize,
+            )
+            if (response.isSuccessful) {
+                val dto = response.body()?.data
+                    ?: return AppResult.Failure(Exception("Empty response"))
+                AppResult.Success(
+                    PagedProducts(
+                        products = dto.products.map { it.toDomain() },
+                        total = dto.total,
+                        page = dto.page,
+                        pageSize = dto.pageSize,
+                        totalPages = dto.totalPages,
+                    )
+                )
+            } else {
+                AppResult.Failure(
+                    Exception(response.errorBody()?.string() ?: "Failed to load products")
                 )
             }
         } catch (e: Exception) {

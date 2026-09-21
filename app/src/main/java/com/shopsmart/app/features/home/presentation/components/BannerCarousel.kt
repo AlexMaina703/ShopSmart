@@ -68,26 +68,26 @@ fun BannerCarousel(
                     )
                 }
 
-                // You can overlay title + subtitle + CTA on top of the image
-                // if your PNGs are pure photography. If your PNGs already
-                // contain the text, remove this Column.
-                Column(
-                    modifier = Modifier
-                        .align(Alignment.CenterStart)
-                        .padding(start = 20.dp, end = 140.dp),
-                ) {
-                    Text(
-                        banner.title,
-                        fontSize = 18.sp,
-                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface,
-                    )
-                    Text(
-                        banner.subtitle,
-                        fontSize = 13.sp,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
+//                // You can overlay title + subtitle + CTA on top of the image
+//                // if your PNGs are pure photography. If your PNGs already
+//                // contain the text, remove this Column.
+//                Column(
+//                    modifier = Modifier
+//                        .align(Alignment.CenterStart)
+//                        .padding(start = 20.dp, end = 140.dp),
+//                ) {
+//                    Text(
+//                        banner.title,
+//                        fontSize = 18.sp,
+//                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+//                        color = MaterialTheme.colorScheme.onSurface,
+//                    )
+//                    Text(
+//                        banner.subtitle,
+//                        fontSize = 13.sp,
+//                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+//                    )
+//                }
             }
         }
 
