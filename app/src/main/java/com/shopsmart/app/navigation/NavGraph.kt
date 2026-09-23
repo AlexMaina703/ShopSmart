@@ -24,6 +24,8 @@ import com.shopsmart.app.features.order.presentation.screens.OrderDetailScreen
 import com.shopsmart.app.features.order.presentation.screens.OrderSuccessScreen
 import com.shopsmart.app.features.order.presentation.screens.OrdersScreen
 import com.shopsmart.app.features.order.presentation.screens.TrackOrderScreen
+import com.shopsmart.app.features.profile.presentation.screens.EditProfileScreen
+import com.shopsmart.app.features.profile.presentation.screens.ProfileScreen
 
 @Composable
 fun AppNavHost(
@@ -139,6 +141,13 @@ fun AppNavHost(
             TrackOrderScreen(orderId = orderId, navController = navController)
         }
 
+        composable(NavRoutes.PROFILE) {
+            ProfileScreen(navController)
+        }
+
+        composable(NavRoutes.EDIT_PROFILE) {
+            EditProfileScreen(navController)
+        }
 
 
     }

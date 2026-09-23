@@ -21,6 +21,8 @@ import com.shopsmart.app.features.order.data.remote.model.OrdersListDto
 import com.shopsmart.app.features.order.data.remote.model.PaymentMethodDto
 import com.shopsmart.app.features.order.data.remote.model.PlaceOrderRequestDto
 import com.shopsmart.app.features.order.data.remote.model.TrackingEventDto
+import com.shopsmart.app.features.profile.data.remote.model.ProfileResponseDto
+import com.shopsmart.app.features.profile.data.remote.model.UpdateProfileRequestDto
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -148,4 +150,12 @@ interface ApiService{
     suspend fun trackOrder(@Path("id") id: String): Response<BaseResponse<List<TrackingEventDto>>>
 
 
+    // Profile
+    @GET("api/user/profile")
+    suspend fun getProfileFull(): Response<BaseResponse<ProfileResponseDto>>
+
+    @PUT("api/user/profile")
+    suspend fun updateProfile(
+        @Body request: UpdateProfileRequestDto,
+    ): Response<BaseResponse<ProfileResponseDto>>
 }

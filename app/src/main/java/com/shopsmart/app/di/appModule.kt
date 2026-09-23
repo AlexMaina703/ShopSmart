@@ -37,6 +37,12 @@ import com.shopsmart.app.features.order.presentation.viewmodels.AddAddressViewMo
 import com.shopsmart.app.features.order.presentation.viewmodels.AddPaymentMethodViewModel
 import com.shopsmart.app.features.order.presentation.viewmodels.OrderDetailViewModel
 import com.shopsmart.app.features.order.presentation.viewmodels.TrackOrderViewModel
+import com.shopsmart.app.features.profile.data.repository.ProfileRepositoryImpl
+import com.shopsmart.app.features.profile.domain.repository.ProfileRepository
+import com.shopsmart.app.features.profile.domain.usecase.GetProfileUseCase
+import com.shopsmart.app.features.profile.domain.usecase.UpdateProfileUseCase
+import com.shopsmart.app.features.profile.presentation.viewmodel.EditProfileViewModel
+import com.shopsmart.app.features.profile.presentation.viewmodel.ProfileViewModel
 import org.koin.androidx.viewmodel.dsl.viewModel
 
 import org.koin.dsl.module
@@ -155,4 +161,14 @@ val orderModule = module {
   viewModel { AddAddressViewModel(get()) }
   viewModel { AddPaymentMethodViewModel(get()) }
   viewModel { TrackOrderViewModel(get()) }
+}
+
+val profileModule = module {
+  single<ProfileRepository> { ProfileRepositoryImpl() }
+
+  factory { GetProfileUseCase(get()) }
+  factory { UpdateProfileUseCase(get()) }
+
+  viewModel { ProfileViewModel(get(), get()) }
+  viewModel { EditProfileViewModel(get()) }
 }

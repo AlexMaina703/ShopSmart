@@ -45,8 +45,7 @@ fun HomeScreen(
                         "categories" -> navController.navigate(NavRoutes.CATEGORIES)
                         "cart" -> navController.navigate(NavRoutes.CART)
                         "orders" -> navController.navigate(NavRoutes.ORDERS)
-                        "profile" -> { /* TODO */ }
-                    }
+                        "profile" -> navController.navigate(NavRoutes.PROFILE)                    }
                 },
             )
         },

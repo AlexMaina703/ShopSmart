@@ -39,4 +39,7 @@ object NavRoutes {
 
     const val TRACK_ORDER = "track_order/{orderId}"
     fun trackOrder(orderId: String) = "track_order/$orderId"
+
+    const val PROFILE = "profile"
+    const val EDIT_PROFILE = "edit_profile"
 }
