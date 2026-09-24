@@ -13,6 +13,8 @@ import com.shopsmart.app.features.cart.data.remote.model.UpdateCartQuantityReque
 import com.shopsmart.app.features.home.data.remote.model.CategoryDto
 import com.shopsmart.app.features.home.data.remote.model.PagedProductsDto
 import com.shopsmart.app.features.home.data.remote.model.ProductDto
+import com.shopsmart.app.features.notification.data.remote.model.NotificationDto
+import com.shopsmart.app.features.notification.data.remote.model.UnreadCountDto
 import com.shopsmart.app.features.order.data.remote.model.AddAddressRequestDto
 import com.shopsmart.app.features.order.data.remote.model.AddPaymentMethodRequestDto
 import com.shopsmart.app.features.order.data.remote.model.AddressDto
@@ -23,6 +25,7 @@ import com.shopsmart.app.features.order.data.remote.model.PlaceOrderRequestDto
 import com.shopsmart.app.features.order.data.remote.model.TrackingEventDto
 import com.shopsmart.app.features.profile.data.remote.model.ProfileResponseDto
 import com.shopsmart.app.features.profile.data.remote.model.UpdateProfileRequestDto
+import com.shopsmart.app.features.wishlist.data.model.WishlistItemDto
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -158,4 +161,32 @@ interface ApiService{
     suspend fun updateProfile(
         @Body request: UpdateProfileRequestDto,
     ): Response<BaseResponse<ProfileResponseDto>>
+
+
+    // Wishlist
+    @GET("api/wishlist")
+    suspend fun getWishlist(): Response<BaseResponse<List<WishlistItemDto>>>
+
+    @POST("api/wishlist/{productId}")
+    suspend fun addToWishlist(@Path("productId") productId: String): Response<BaseResponse<Unit>>
+
+    @DELETE("api/wishlist/{id}")
+    suspend fun removeFromWishlist(@Path("id") id: String): Response<BaseResponse<Unit>>
+
+    // Notifications
+    @GET("api/notifications")
+    suspend fun getNotifications(): Response<BaseResponse<List<NotificationDto>>>
+
+    @GET("api/notifications/unread-count")
+    suspend fun getUnreadCount(): Response<BaseResponse<UnreadCountDto>>
+
+    @PUT("api/notifications/{id}/read")
+    suspend fun markNotificationRead(@Path("id") id: String): Response<BaseResponse<Unit>>
+
+    @PUT("api/notifications/read-all")
+    suspend fun markAllNotificationsRead(): Response<BaseResponse<Unit>>
+
+    @DELETE("api/notifications/{id}")
+    suspend fun deleteNotification(@Path("id") id: String): Response<BaseResponse<Unit>>
+
 }

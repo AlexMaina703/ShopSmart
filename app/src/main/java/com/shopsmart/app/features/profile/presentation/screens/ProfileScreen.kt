@@ -8,8 +8,15 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material.icons.outlined.*
+import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Logout
+import androidx.compose.material.icons.outlined.CreditCard
+import androidx.compose.material.icons.outlined.FavoriteBorder
+import androidx.compose.material.icons.outlined.LocationOn
+import androidx.compose.material.icons.outlined.Notifications
+import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material.icons.outlined.ShoppingBag
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -38,12 +45,27 @@ fun ProfileScreen(
     val loggedOut by viewModel.loggedOut.collectAsStateWithLifecycle()
     var showLogoutDialog by remember { mutableStateOf(false) }
 
-    // On logout → clear stack and go to login
+    // When logout completes → clear the entire back stack and land on Login
     LaunchedEffect(loggedOut) {
         if (loggedOut) {
             navController.navigate(NavRoutes.LOGIN) {
                 popUpTo(0) { inclusive = true }
             }
+        }
+    }
+
+    // Reload profile when returning from EditProfile
+    val profileUpdated = navController.currentBackStackEntry
+        ?.savedStateHandle
+        ?.getStateFlow("profile_updated", false)
+        ?.collectAsStateWithLifecycle()
+
+    LaunchedEffect(profileUpdated?.value) {
+        if (profileUpdated?.value == true) {
+            viewModel.load()
+            navController.currentBackStackEntry
+                ?.savedStateHandle
+                ?.remove<Boolean>("profile_updated")
         }
     }
 
@@ -65,7 +87,9 @@ fun ProfileScreen(
                         .padding(padding)
                         .verticalScroll(rememberScrollState()),
                 ) {
-                    // ---------- HEADER ----------
+                    // =========================================================
+                    //  HEADER
+                    // =========================================================
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -73,7 +97,7 @@ fun ProfileScreen(
                             .padding(20.dp),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        // Avatar
+                        // ----- Avatar -----
                         Box(
                             modifier = Modifier
                                 .size(72.dp)
@@ -100,6 +124,7 @@ fun ProfileScreen(
 
                         Spacer(Modifier.width(16.dp))
 
+                        // ----- Name / email / phone -----
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
                                 profile.fullName,
@@ -111,7 +136,7 @@ fun ProfileScreen(
                                 fontSize = 13.sp,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
-                            profile.phone?.let {
+                            profile.phone?.takeIf { it.isNotBlank() }?.let {
                                 Text(
                                     it,
                                     fontSize = 13.sp,
@@ -120,60 +145,81 @@ fun ProfileScreen(
                             }
                         }
 
-                        IconButton(onClick = { navController.navigate(NavRoutes.EDIT_PROFILE) }) {
-                            Icon(Icons.Default.Edit, contentDescription = "Edit profile")
+                        IconButton(
+                            onClick = { navController.navigate(NavRoutes.EDIT_PROFILE) }
+                        ) {
+                            Icon(
+                                Icons.Default.Edit,
+                                contentDescription = "Edit profile",
+                                tint = MaterialTheme.colorScheme.primary,
+                            )
                         }
                     }
 
-                    Spacer(Modifier.height(12.dp))
+                    Spacer(Modifier.height(8.dp))
 
-                    // ---------- SHOPPING ----------
+                    // =========================================================
+                    //  SHOPPING
+                    // =========================================================
                     SectionTitle("Shopping")
+
                     MenuItem(
                         icon = Icons.Outlined.ShoppingBag,
                         title = "My Orders",
                         subtitle = "Track and view your orders",
                         onClick = { navController.navigate(NavRoutes.ORDERS) },
                     )
+
                     MenuItem(
                         icon = Icons.Outlined.FavoriteBorder,
                         title = "Wishlist",
                         subtitle = "Items you've saved",
-                        onClick = { /* TODO: navigate to wishlist */ },
+                        onClick = { navController.navigate(NavRoutes.WISHLIST) },
+                    )
+                    HorizontalDivider(
+                        modifier = Modifier.padding(horizontal = 16.dp),
+                        color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f),
                     )
 
-                    Spacer(Modifier.height(12.dp))
-
-                    // ---------- ACCOUNT ----------
+                    // =========================================================
+                    //  ACCOUNT
+                    // =========================================================
                     SectionTitle("Account")
+
                     MenuItem(
                         icon = Icons.Outlined.LocationOn,
                         title = "Addresses",
                         subtitle = "${profile.addresses.size} saved",
-                        onClick = { /* TODO: navigate to addresses list */ },
+                        onClick = { navController.navigate(NavRoutes.ADDRESSES) },
                     )
                     MenuItem(
                         icon = Icons.Outlined.CreditCard,
                         title = "Payment Methods",
                         subtitle = "${profile.paymentMethods.size} saved",
-                        onClick = { /* TODO: navigate to payment methods list */ },
+                        onClick = { navController.navigate(NavRoutes.PAYMENT_METHODS) },
                     )
                     MenuItem(
                         icon = Icons.Outlined.Notifications,
                         title = "Notifications",
                         subtitle = "Manage your alerts",
-                        onClick = { /* TODO: navigate to notifications */ },
+                        onClick = { navController.navigate(NavRoutes.NOTIFICATIONS) },
                     )
                     MenuItem(
                         icon = Icons.Outlined.Settings,
                         title = "Settings",
                         subtitle = "App preferences",
-                        onClick = { /* TODO: navigate to settings */ },
+                        onClick = { navController.navigate(NavRoutes.SETTINGS) },
+                    )
+                    HorizontalDivider(
+                        modifier = Modifier.padding(horizontal = 16.dp),
+                        color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f),
                     )
 
                     Spacer(Modifier.height(24.dp))
 
-                    // ---------- LOGOUT ----------
+                    // =========================================================
+                    //  LOGOUT
+                    // =========================================================
                     OutlinedButton(
                         onClick = { showLogoutDialog = true },
                         modifier = Modifier
@@ -185,40 +231,57 @@ fun ProfileScreen(
                             contentColor = MaterialTheme.colorScheme.error,
                         ),
                     ) {
-                        Icon(Icons.Default.Logout, contentDescription = null, modifier = Modifier.size(18.dp))
+                        Icon(
+                            Icons.Default.Logout,
+                            contentDescription = null,
+                            modifier = Modifier.size(18.dp),
+                        )
                         Spacer(Modifier.width(8.dp))
                         Text("Logout", fontWeight = FontWeight.SemiBold)
                     }
 
-                    Spacer(Modifier.height(24.dp))
+                    Spacer(Modifier.height(32.dp))
                 }
             }
         }
     }
 
+    // =========================================================
+    //  LOGOUT CONFIRMATION DIALOG
+    // =========================================================
     if (showLogoutDialog) {
         AlertDialog(
             onDismissRequest = { showLogoutDialog = false },
             title = { Text("Logout?") },
             text = { Text("You'll need to sign in again to access your account.") },
             confirmButton = {
-                TextButton(onClick = {
-                    showLogoutDialog = false
-                    viewModel.logout()
-                }) { Text("Logout", color = MaterialTheme.colorScheme.error) }
+                TextButton(
+                    onClick = {
+                        showLogoutDialog = false
+                        viewModel.logout()
+                    }
+                ) {
+                    Text("Logout", color = MaterialTheme.colorScheme.error)
+                }
             },
             dismissButton = {
-                TextButton(onClick = { showLogoutDialog = false }) { Text("Cancel") }
+                TextButton(onClick = { showLogoutDialog = false }) {
+                    Text("Cancel")
+                }
             },
         )
     }
 }
 
+// =============================================================
+//  COMPONENTS
+// =============================================================
+
 @Composable
 private fun SectionTitle(text: String) {
     Text(
-        text,
-        modifier = Modifier.padding(start = 16.dp, top = 8.dp, bottom = 4.dp),
+        text = text,
+        modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 4.dp),
         fontSize = 12.sp,
         fontWeight = FontWeight.SemiBold,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -246,21 +309,34 @@ private fun MenuItem(
                 .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)),
             contentAlignment = Alignment.Center,
         ) {
-            Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(20.dp),
+            )
         }
+
         Spacer(Modifier.width(14.dp))
+
         Column(modifier = Modifier.weight(1f)) {
-            Text(title, fontSize = 14.sp, fontWeight = FontWeight.Medium)
+            Text(
+                title,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Medium,
+            )
             Text(
                 subtitle,
                 fontSize = 12.sp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
+
         Icon(
-            Icons.Default.ChevronRight,
+            imageVector = Icons.Default.ChevronRight,
             contentDescription = null,
-            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+            modifier = Modifier.size(20.dp),
         )
     }
 }

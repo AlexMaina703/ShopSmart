@@ -30,6 +30,7 @@ import java.util.Locale
 fun FeaturedProductsGrid(
     products: List<Product>,
     onProductClick: (Product) -> Unit,
+    wishlistMap: Map<String, String>,
     onFavoriteClick: (Product) -> Unit,
     onSeeAllClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -69,6 +70,7 @@ fun FeaturedProductsGrid(
             items(products, key = { it.id }) { product ->
                 ProductCard(
                     product = product,
+                    isFavorite = wishlistMap.containsKey(product.id),   // 👈 from map
                     onClick = { onProductClick(product) },
                     onFavoriteClick = { onFavoriteClick(product) },
                 )

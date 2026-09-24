@@ -42,4 +42,13 @@ object NavRoutes {
 
     const val PROFILE = "profile"
     const val EDIT_PROFILE = "edit_profile"
+
+
+    const val WISHLIST = "wishlist"
+
+
+    const val ADDRESSES = "addresses"
+    const val PAYMENT_METHODS = "payment_methods"
+    const val NOTIFICATIONS = "notifications"
+    const val SETTINGS = "settings"
 }

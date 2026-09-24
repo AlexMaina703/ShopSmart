@@ -17,15 +17,20 @@ import com.shopsmart.app.features.home.presentation.screens.CategoriesScreen
 import com.shopsmart.app.features.home.presentation.screens.HomeScreen
 import com.shopsmart.app.features.home.presentation.screens.ProductDetailScreen
 import com.shopsmart.app.features.home.presentation.screens.ProductListScreen
+import com.shopsmart.app.features.notification.presentation.screens.NotificationsScreen
 import com.shopsmart.app.features.order.presentation.screens.AddAddressScreen
 import com.shopsmart.app.features.order.presentation.screens.AddPaymentMethodScreen
+import com.shopsmart.app.features.order.presentation.screens.AddressesScreen
 import com.shopsmart.app.features.order.presentation.screens.CheckoutScreen
 import com.shopsmart.app.features.order.presentation.screens.OrderDetailScreen
 import com.shopsmart.app.features.order.presentation.screens.OrderSuccessScreen
 import com.shopsmart.app.features.order.presentation.screens.OrdersScreen
+import com.shopsmart.app.features.order.presentation.screens.PaymentMethodsScreen
 import com.shopsmart.app.features.order.presentation.screens.TrackOrderScreen
 import com.shopsmart.app.features.profile.presentation.screens.EditProfileScreen
 import com.shopsmart.app.features.profile.presentation.screens.ProfileScreen
+import com.shopsmart.app.features.settings.presentation.screens.SettingsScreen
+import com.shopsmart.app.features.wishlist.presentation.screens.WishlistScreen
 
 @Composable
 fun AppNavHost(
@@ -149,6 +154,15 @@ fun AppNavHost(
             EditProfileScreen(navController)
         }
 
+        composable(NavRoutes.WISHLIST) {
+            WishlistScreen(navController)
+        }
 
+
+        composable(NavRoutes.ADDRESSES) { AddressesScreen(navController) }
+        composable(NavRoutes.PAYMENT_METHODS) { PaymentMethodsScreen(navController) }
+        composable(NavRoutes.WISHLIST) { WishlistScreen(navController) }
+        composable(NavRoutes.NOTIFICATIONS) { NotificationsScreen(navController) }
+        composable(NavRoutes.SETTINGS) { SettingsScreen(navController) }
     }
 }

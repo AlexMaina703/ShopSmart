@@ -33,9 +33,19 @@ import com.shopsmart.app.features.order.presentation.viewmodels.CheckoutViewMode
 import com.shopsmart.app.features.order.presentation.viewmodels.OrdersViewModel
 import com.shopsmart.app.features.cart.domain.usecase.*
 import com.shopsmart.app.features.cart.presentation.viewmodels.CartViewModel
+import com.shopsmart.app.features.notification.data.repository.NotificationRepositoryImpl
+import com.shopsmart.app.features.notification.domain.repository.NotificationRepository
+import com.shopsmart.app.features.notification.domain.usecase.DeleteNotificationUseCase
+import com.shopsmart.app.features.notification.domain.usecase.GetNotificationsUseCase
+import com.shopsmart.app.features.notification.domain.usecase.GetUnreadCountUseCase
+import com.shopsmart.app.features.notification.domain.usecase.MarkAllNotificationsReadUseCase
+import com.shopsmart.app.features.notification.domain.usecase.MarkNotificationReadUseCase
+import com.shopsmart.app.features.notification.presentation.viewmodels.NotificationsViewModel
 import com.shopsmart.app.features.order.presentation.viewmodels.AddAddressViewModel
 import com.shopsmart.app.features.order.presentation.viewmodels.AddPaymentMethodViewModel
+import com.shopsmart.app.features.order.presentation.viewmodels.AddressesViewModel
 import com.shopsmart.app.features.order.presentation.viewmodels.OrderDetailViewModel
+import com.shopsmart.app.features.order.presentation.viewmodels.PaymentMethodsViewModel
 import com.shopsmart.app.features.order.presentation.viewmodels.TrackOrderViewModel
 import com.shopsmart.app.features.profile.data.repository.ProfileRepositoryImpl
 import com.shopsmart.app.features.profile.domain.repository.ProfileRepository
@@ -43,6 +53,14 @@ import com.shopsmart.app.features.profile.domain.usecase.GetProfileUseCase
 import com.shopsmart.app.features.profile.domain.usecase.UpdateProfileUseCase
 import com.shopsmart.app.features.profile.presentation.viewmodel.EditProfileViewModel
 import com.shopsmart.app.features.profile.presentation.viewmodel.ProfileViewModel
+import com.shopsmart.app.features.settings.presentation.viewmodels.SettingsViewModel
+
+import com.shopsmart.app.features.wishlist.data.repository.WishlistRepositoryImpl
+import com.shopsmart.app.features.wishlist.domain.repository.WishlistRepository
+import com.shopsmart.app.features.wishlist.domain.usecase.AddToWishlistUseCase
+import com.shopsmart.app.features.wishlist.domain.usecase.GetWishlistUseCase
+import com.shopsmart.app.features.wishlist.domain.usecase.RemoveFromWishlistUseCase
+import com.shopsmart.app.features.wishlist.presentation.viewmodels.WishlistViewModel
 import org.koin.androidx.viewmodel.dsl.viewModel
 
 import org.koin.dsl.module
@@ -86,6 +104,9 @@ val homeModule = module {
       getCategoriesUseCase = get(),
       getFeaturedProductsUseCase = get(),
       getBannersUseCase = get(),
+      getWishlistUseCase = get(),
+      addToWishlistUseCase = get(),
+      removeFromWishlistUseCase = get(),
     )
   }
 }
@@ -102,6 +123,9 @@ val productModule = module {
         getProductByIdUseCase = get(),
         getRelatedProductsUseCase = get(),
         addToCartUseCase = get(),
+      addToWishlistUseCase = get(),
+      removeFromWishlistUseCase = get(),
+      getWishlistUseCase = get(),
     )
   }
 }
@@ -161,6 +185,8 @@ val orderModule = module {
   viewModel { AddAddressViewModel(get()) }
   viewModel { AddPaymentMethodViewModel(get()) }
   viewModel { TrackOrderViewModel(get()) }
+  viewModel { AddressesViewModel(get(), get()) }
+  viewModel { PaymentMethodsViewModel(get(), get()) }
 }
 
 val profileModule = module {
@@ -171,4 +197,36 @@ val profileModule = module {
 
   viewModel { ProfileViewModel(get(), get()) }
   viewModel { EditProfileViewModel(get()) }
+}
+
+
+val wishlistModule = module {
+  single<WishlistRepository> { WishlistRepositoryImpl() }
+
+  factory { GetWishlistUseCase(get()) }
+  factory { AddToWishlistUseCase(get()) }
+  factory { RemoveFromWishlistUseCase(get()) }
+
+  viewModel { WishlistViewModel(get(), get()) }
+}
+
+val notificationModule = module {
+  single<NotificationRepository> { NotificationRepositoryImpl() }
+  factory { GetNotificationsUseCase(get()) }
+  factory { GetUnreadCountUseCase(get()) }
+  factory { MarkNotificationReadUseCase(get()) }
+  factory { MarkAllNotificationsReadUseCase(get()) }
+  factory { DeleteNotificationUseCase(get()) }
+  viewModel {
+    NotificationsViewModel(
+      getNotificationsUseCase = get(),
+      markReadUseCase = get(),
+      markAllReadUseCase = get(),
+      deleteUseCase = get(),
+    )
+  }
+}
+
+val settingsModule = module {
+  viewModel { SettingsViewModel(get()) }
 }
