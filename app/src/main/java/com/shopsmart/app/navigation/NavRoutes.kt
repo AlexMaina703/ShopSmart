@@ -51,4 +51,6 @@ object NavRoutes {
     const val PAYMENT_METHODS = "payment_methods"
     const val NOTIFICATIONS = "notifications"
     const val SETTINGS = "settings"
+
+    const val SEARCH = "search"
 }

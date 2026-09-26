@@ -33,6 +33,7 @@ import com.shopsmart.app.features.order.presentation.viewmodels.CheckoutViewMode
 import com.shopsmart.app.features.order.presentation.viewmodels.OrdersViewModel
 import com.shopsmart.app.features.cart.domain.usecase.*
 import com.shopsmart.app.features.cart.presentation.viewmodels.CartViewModel
+import com.shopsmart.app.features.home.presentation.viewmodels.SearchViewModel
 import com.shopsmart.app.features.notification.data.repository.NotificationRepositoryImpl
 import com.shopsmart.app.features.notification.domain.repository.NotificationRepository
 import com.shopsmart.app.features.notification.domain.usecase.DeleteNotificationUseCase
@@ -107,6 +108,8 @@ val homeModule = module {
       getWishlistUseCase = get(),
       addToWishlistUseCase = get(),
       removeFromWishlistUseCase = get(),
+      getUnreadCountUseCase = get(),
+      dataStore = get(),
     )
   }
 }
@@ -229,4 +232,8 @@ val notificationModule = module {
 
 val settingsModule = module {
   viewModel { SettingsViewModel(get()) }
+}
+
+val searchModule = module {
+  viewModel { SearchViewModel(get()) }
 }

@@ -12,5 +12,6 @@ data class HomeUiState(
     val categories: List<Category> = emptyList(),
     val featuredProducts: List<Product> = emptyList(),
     val cartItemCount: Int = 0,
+    val unreadNotificationCount: Int = 0,
     val toastMessage: String? = null,
 )

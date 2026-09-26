@@ -1,14 +1,12 @@
 package com.shopsmart.app.features.home.presentation.components
 
-
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -25,21 +23,23 @@ import androidx.compose.ui.unit.sp
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeTopBar(
-    cartItemCount: Int,
+    unreadNotificationCount: Int,
     onMenuClick: () -> Unit,
     onSearchClick: () -> Unit,
-    onCartClick: () -> Unit,
+    onNotificationsClick: () -> Unit,
 ) {
     CenterAlignedTopAppBar(
         title = {
             Text(
                 buildAnnotatedString {
-                    withStyle(SpanStyle(color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold)) {
-                        append("Shop")
-                    }
-                    withStyle(SpanStyle(color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)) {
-                        append("Smart")
-                    }
+                    withStyle(SpanStyle(
+                        color = MaterialTheme.colorScheme.onSurface,
+                        fontWeight = FontWeight.Bold
+                    )) { append("Shop") }
+                    withStyle(SpanStyle(
+                        color = MaterialTheme.colorScheme.primary,
+                        fontWeight = FontWeight.Bold
+                    )) { append("Smart") }
                 },
                 fontSize = 22.sp,
             )
@@ -54,21 +54,22 @@ fun HomeTopBar(
                 Icon(Icons.Default.Search, contentDescription = "Search")
             }
             Box {
-                IconButton(onClick = onCartClick) {
-                    Icon(Icons.Default.ShoppingCart, contentDescription = "Cart")
+                IconButton(onClick = onNotificationsClick) {
+                    Icon(Icons.Default.Notifications, contentDescription = "Notifications")
                 }
-                if (cartItemCount > 0) {
+                if (unreadNotificationCount > 0) {
                     Box(
                         modifier = Modifier
                             .align(Alignment.TopEnd)
                             .padding(top = 4.dp, end = 4.dp)
                             .size(18.dp)
                             .clip(CircleShape)
-                            .background(MaterialTheme.colorScheme.primary),
+                            .background(MaterialTheme.colorScheme.error),
                         contentAlignment = Alignment.Center,
                     ) {
                         Text(
-                            text = if (cartItemCount > 99) "99+" else cartItemCount.toString(),
+                            text = if (unreadNotificationCount > 99) "99+"
+                            else unreadNotificationCount.toString(),
                             color = Color.White,
                             fontSize = 10.sp,
                             fontWeight = FontWeight.Bold,

@@ -2,11 +2,13 @@ package com.shopsmart.app.features.home.presentation.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.shopsmart.app.core.datastore.DataStoreManager
 import com.shopsmart.app.core.util.AppResult
 import com.shopsmart.app.features.home.domain.usecase.GetBannersUseCase
 import com.shopsmart.app.features.home.domain.usecase.GetCategoriesUseCase
 import com.shopsmart.app.features.home.domain.usecase.GetFeaturedProductsUseCase
 import com.shopsmart.app.features.home.presentation.state.HomeUiState
+import com.shopsmart.app.features.notification.domain.usecase.GetUnreadCountUseCase
 import com.shopsmart.app.features.wishlist.domain.usecase.AddToWishlistUseCase
 import com.shopsmart.app.features.wishlist.domain.usecase.GetWishlistUseCase
 import com.shopsmart.app.features.wishlist.domain.usecase.RemoveFromWishlistUseCase
@@ -23,18 +25,50 @@ class HomeViewModel(
     private val getWishlistUseCase: GetWishlistUseCase,
     private val addToWishlistUseCase: AddToWishlistUseCase,
     private val removeFromWishlistUseCase: RemoveFromWishlistUseCase,
+    private val getUnreadCountUseCase: GetUnreadCountUseCase,
+    private val dataStore: DataStoreManager,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HomeUiState())
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
 
-
     private val _wishlistMap = MutableStateFlow<Map<String, String>>(emptyMap())
     val wishlistMap: StateFlow<Map<String, String>> = _wishlistMap.asStateFlow()
+
+    //  drawer header
+    private val _userName = MutableStateFlow<String?>(null)
+    val userName: StateFlow<String?> = _userName.asStateFlow()
+
+    private val _userEmail = MutableStateFlow<String?>(null)
+    val userEmail: StateFlow<String?> = _userEmail.asStateFlow()
 
     init {
         loadHome()
         loadWishlist()
+        loadUnreadCount()
+        observeUser()
+    }
+
+    private fun observeUser() {
+        viewModelScope.launch {
+            dataStore.userName.collect { _userName.value = it }
+        }
+        viewModelScope.launch {
+            dataStore.userEmail.collect { _userEmail.value = it }
+        }
+    }
+
+    fun refreshUnreadCount() = loadUnreadCount()
+
+    private fun loadUnreadCount() {
+        viewModelScope.launch {
+            when (val r = getUnreadCountUseCase()) {
+                is AppResult.Success -> _uiState.update {
+                    it.copy(unreadNotificationCount = r.data)
+                }
+                is AppResult.Failure -> Unit
+            }
+        }
     }
 
     private fun loadWishlist() {
@@ -61,7 +95,7 @@ class HomeViewModel(
             } else {
                 when (addToWishlistUseCase(productId)) {
                     is AppResult.Success -> {
-                        loadWishlist()  // re-fetch to capture the new wishlist item ID
+                        loadWishlist()
                         _uiState.update { it.copy(toastMessage = "Added to wishlist") }
                     }
                     is AppResult.Failure -> Unit
@@ -70,19 +104,13 @@ class HomeViewModel(
         }
     }
 
-    fun consumeToast() {
-        _uiState.update { it.copy(toastMessage = null) }
-    }
-
+    fun consumeToast() = _uiState.update { it.copy(toastMessage = null) }
 
     fun loadHome() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, errorMessage = null) }
 
-            // Banners are local → instant
             val banners = getBannersUseCase()
-
-            // Fire both API calls in parallel
             val categories = getCategoriesUseCase()
             val featured = getFeaturedProductsUseCase()
 

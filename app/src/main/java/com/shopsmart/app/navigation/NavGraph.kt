@@ -29,6 +29,7 @@ import com.shopsmart.app.features.order.presentation.screens.PaymentMethodsScree
 import com.shopsmart.app.features.order.presentation.screens.TrackOrderScreen
 import com.shopsmart.app.features.profile.presentation.screens.EditProfileScreen
 import com.shopsmart.app.features.profile.presentation.screens.ProfileScreen
+import com.shopsmart.app.features.search.presentation.screens.SearchScreen
 import com.shopsmart.app.features.settings.presentation.screens.SettingsScreen
 import com.shopsmart.app.features.wishlist.presentation.screens.WishlistScreen
 
@@ -164,5 +165,9 @@ fun AppNavHost(
         composable(NavRoutes.WISHLIST) { WishlistScreen(navController) }
         composable(NavRoutes.NOTIFICATIONS) { NotificationsScreen(navController) }
         composable(NavRoutes.SETTINGS) { SettingsScreen(navController) }
+
+        composable(NavRoutes.SEARCH) {
+            SearchScreen(navController)
+        }
     }
 }

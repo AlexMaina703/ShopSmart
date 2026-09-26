@@ -14,6 +14,7 @@ import com.shopsmart.app.core.ui.theme.LoadingIndicator
 import com.shopsmart.app.features.home.presentation.components.*
 import com.shopsmart.app.features.home.presentation.viewmodels.HomeViewModel
 import com.shopsmart.app.navigation.NavRoutes
+import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -23,10 +24,15 @@ fun HomeScreen(
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val wishlistMap by viewModel.wishlistMap.collectAsStateWithLifecycle()
+    val userName by viewModel.userName.collectAsStateWithLifecycle()
+    val userEmail by viewModel.userEmail.collectAsStateWithLifecycle()
+
     val snackbarHostState = remember { SnackbarHostState() }
+    val drawerState = rememberDrawerState(DrawerValue.Closed)
+    val scope = rememberCoroutineScope()
     var currentBottomRoute by remember { mutableStateOf("home") }
 
-    // Show toast messages coming from ViewModel (favourite toggles, etc.)
+    // Toast messages
     LaunchedEffect(state.toastMessage) {
         state.toastMessage?.let {
             snackbarHostState.showSnackbar(it)
@@ -34,48 +40,81 @@ fun HomeScreen(
         }
     }
 
-    Scaffold(
-        snackbarHost = { SnackbarHost(snackbarHostState) },
-        topBar = {
-            HomeTopBar(
-                cartItemCount = state.cartItemCount,
-                onMenuClick = { /* open drawer later */ },
-                onSearchClick = { /* TODO: navigate to search */ },
-                onCartClick = { navController.navigate(NavRoutes.CART) },
-            )
-        },
-        bottomBar = {
-            ShopSmartBottomBar(
-                items = defaultBottomNavItems(state.cartItemCount),
-                currentRoute = currentBottomRoute,
-                onItemClick = { item ->
-                    currentBottomRoute = item.route
-                    when (item.route) {
+    // Refresh notification badge + cart count every time home comes back into focus
+    LaunchedEffect(Unit) {
+        viewModel.refreshUnreadCount()
+    }
+
+    ModalNavigationDrawer(
+        drawerState = drawerState,
+        gesturesEnabled = true,
+        drawerContent = {
+            HomeDrawer(
+                userName = userName,
+                userEmail = userEmail,
+                unreadCount = state.unreadNotificationCount,
+                onEntryClick = { entry ->
+                    scope.launch { drawerState.close() }
+                    when (entry.route) {
                         "home" -> Unit
                         "categories" -> navController.navigate(NavRoutes.CATEGORIES)
                         "cart" -> navController.navigate(NavRoutes.CART)
+                        "wishlist" -> navController.navigate(NavRoutes.WISHLIST)
                         "orders" -> navController.navigate(NavRoutes.ORDERS)
+                        "notifications" -> navController.navigate(NavRoutes.NOTIFICATIONS)
                         "profile" -> navController.navigate(NavRoutes.PROFILE)
+                        "addresses" -> navController.navigate(NavRoutes.ADDRESSES)
+                        "payment_methods" -> navController.navigate(NavRoutes.PAYMENT_METHODS)
+                        "settings" -> navController.navigate(NavRoutes.SETTINGS)
+                    }
+                },
+                onLogout = {
+                    scope.launch { drawerState.close() }
+                    navController.navigate(NavRoutes.LOGIN) {
+                        popUpTo(0) { inclusive = true }
                     }
                 },
             )
         },
-    ) { padding ->
-
-        when {
-            state.isLoading && state.featuredProducts.isEmpty() -> {
-                LoadingIndicator(modifier = Modifier.padding(padding))
-            }
-
-            state.errorMessage != null && state.featuredProducts.isEmpty() -> {
-                ErrorMessage(
-                    message = state.errorMessage ?: "Something went wrong",
-                    modifier = Modifier.padding(padding),
+    ) {
+        Scaffold(
+            snackbarHost = { SnackbarHost(snackbarHostState) },
+            topBar = {
+                HomeTopBar(
+                    unreadNotificationCount = state.unreadNotificationCount,
+                    onMenuClick = { scope.launch { drawerState.open() } },
+                    onSearchClick = { navController.navigate(NavRoutes.SEARCH) },
+                    onNotificationsClick = { navController.navigate(NavRoutes.NOTIFICATIONS) },
                 )
-            }
+            },
+            bottomBar = {
+                ShopSmartBottomBar(
+                    items = defaultBottomNavItems(state.cartItemCount),
+                    currentRoute = currentBottomRoute,
+                    onItemClick = { item ->
+                        currentBottomRoute = item.route
+                        when (item.route) {
+                            "home" -> Unit
+                            "categories" -> navController.navigate(NavRoutes.CATEGORIES)
+                            "cart" -> navController.navigate(NavRoutes.CART)
+                            "orders" -> navController.navigate(NavRoutes.ORDERS)
+                            "profile" -> navController.navigate(NavRoutes.PROFILE)
+                        }
+                    },
+                )
+            },
+        ) { padding ->
+            when {
+                state.isLoading && state.featuredProducts.isEmpty() ->
+                    LoadingIndicator(modifier = Modifier.padding(padding))
 
-            else -> {
-                Column(
+                state.errorMessage != null && state.featuredProducts.isEmpty() ->
+                    ErrorMessage(
+                        message = state.errorMessage ?: "Something went wrong",
+                        modifier = Modifier.padding(padding),
+                    )
+
+                else -> Column(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(padding)
@@ -83,24 +122,21 @@ fun HomeScreen(
                 ) {
                     Spacer(Modifier.height(8.dp))
 
-                    // ---------- BANNERS ----------
                     BannerCarousel(
                         banners = state.banners,
                         onBannerClick = { banner ->
-                            // Route based on the banner's targetRoute field
                             when (banner.targetRoute) {
                                 "categories" -> navController.navigate(NavRoutes.CATEGORIES)
                                 "cart" -> navController.navigate(NavRoutes.CART)
                                 "orders" -> navController.navigate(NavRoutes.ORDERS)
                                 "profile" -> navController.navigate(NavRoutes.PROFILE)
-                                else -> Unit // no-op for unknown targets
+                                else -> Unit
                             }
                         },
                     )
 
                     Spacer(Modifier.height(24.dp))
 
-                    // ---------- CATEGORIES ----------
                     CategoriesRow(
                         categories = state.categories,
                         onCategoryClick = { category ->
@@ -113,7 +149,6 @@ fun HomeScreen(
 
                     Spacer(Modifier.height(24.dp))
 
-                    // ---------- FEATURED ----------
                     FeaturedProductsGrid(
                         products = state.featuredProducts,
                         wishlistMap = wishlistMap,
@@ -124,8 +159,6 @@ fun HomeScreen(
                             viewModel.toggleFavorite(product.id)
                         },
                         onSeeAllClick = {
-                            // "See All" of featured → browse everything
-                            // Uses the first category as a fallback, or a "all" route
                             navController.navigate(
                                 NavRoutes.productList("", "Featured Products")
                             )

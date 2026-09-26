@@ -9,6 +9,7 @@ import com.shopsmart.app.di.notificationModule
 import com.shopsmart.app.di.orderModule
 import com.shopsmart.app.di.productModule
 import com.shopsmart.app.di.profileModule
+import com.shopsmart.app.di.searchModule
 import com.shopsmart.app.di.settingsModule
 import com.shopsmart.app.di.wishlistModule
 import org.koin.android.ext.koin.androidContext
@@ -30,6 +31,7 @@ class ShopSmartApplication : Application() {
                 wishlistModule,
                 notificationModule,
                 settingsModule,
+                searchModule,
             )
         }
     }
